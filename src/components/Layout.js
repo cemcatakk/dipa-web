@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import AppBar from '@mui/material/AppBar';
+import MuiDrawer from '@mui/material/Drawer';
+import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
@@ -24,27 +24,90 @@ import { useNavigate, Outlet } from 'react-router-dom';
 
 const drawerWidth = 240;
 
-const Main = styled('main')(({ theme, open }) => ({
+const openedMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: 0,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  backgroundColor: '#fff',
+  color: '#333',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+}));
+
+const Main = styled('main', {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
   flexGrow: 1,
   padding: 0,
-  marginLeft: open ? drawerWidth : 0,
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  marginLeft: 0,
+  ...(open && {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  }),
 }));
-
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: '#fff',
-  color: '#333',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-}));
-
-const LogoContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  marginRight: 24,
-});
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
@@ -66,19 +129,18 @@ function Layout() {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <StyledAppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" open={open}>
         <Toolbar>
-          <LogoContainer>
-            <img src="/assets/images/logo.png" alt="Logo" height="40" />
-          </LogoContainer>
           <IconButton
             color="inherit"
+            aria-label="toggle drawer"
             onClick={handleDrawerToggle}
             edge="start"
             sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
+          <img src="/assets/images/logo.png" alt="Logo" height="40" style={{ marginRight: 16 }} />
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             DIPA Yönetim Paneli
           </Typography>
@@ -89,37 +151,45 @@ function Layout() {
             <LogoutIcon />
           </IconButton>
         </Toolbar>
-      </StyledAppBar>
-      <Drawer
-        variant="persistent"
-        anchor="left"
-        open={open}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-      >
-        <Toolbar />
+      </AppBar>
+      
+      <Drawer variant="permanent" open={open}>
+        <DrawerHeader />
         <List>
           {menuItems.map((item) => (
-            <ListItem 
-              component="div"
-              sx={{ cursor: 'pointer' }}
+            <ListItem
               key={item.text}
               onClick={() => navigate(item.path)}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.text} 
+                sx={{ opacity: open ? 1 : 0 }}
+              />
             </ListItem>
           ))}
         </List>
       </Drawer>
+
       <Main open={open}>
-        <Toolbar />
+        <DrawerHeader />
         <Outlet />
       </Main>
     </Box>

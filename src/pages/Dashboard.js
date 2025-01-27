@@ -11,6 +11,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import PersonIcon from '@mui/icons-material/Person';
+import GroupsIcon from '@mui/icons-material/Groups';
+import TimerIcon from '@mui/icons-material/Timer';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WatchLaterIcon from '@mui/icons-material/WatchLater';
 
 // Leaflet için default ikonları düzeltme
 delete L.Icon.Default.prototype._getIconUrl;
@@ -45,8 +50,12 @@ const MapSection = styled(Paper)(({ theme }) => ({
 const ChartsSection = styled(Box)(({ theme }) => ({
   height: '40%',
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr 1fr',
+  gridTemplateColumns: '1fr 1fr',
   gap: 24,
+  [theme.breakpoints.down('sm')]: {
+    gridTemplateColumns: '1fr',
+    height: 'auto',
+  },
 }));
 
 const SidePanel = styled(Paper)(({ theme }) => ({
@@ -86,6 +95,44 @@ const ChartCard = styled(Paper)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
+  '& .recharts-wrapper': {
+    width: '100% !important',
+    height: '100% !important',
+    minHeight: '200px',
+    '& svg': {
+      width: '100% !important',
+      height: '100% !important',
+    },
+  },
+}));
+
+const StatsBox = styled(Paper)(({ theme }) => ({
+  padding: '12px 16px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  borderRadius: 8,
+  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+  transition: 'transform 0.2s',
+  cursor: 'pointer',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+  },
+}));
+
+const IconWrapper = styled(Box)(({ color }) => ({
+  width: 40,
+  height: 40,
+  borderRadius: 8,
+  backgroundColor: color,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  '& svg': {
+    color: '#fff',
+    fontSize: 24,
+  },
 }));
 
 const dummyData = {
@@ -120,20 +167,50 @@ const dummyData = {
 };
 
 const visitStats = [
-  { name: 'Pzt', completed: 12, planned: 15, rate: 80 },
-  { name: 'Sal', completed: 15, planned: 15, rate: 100 },
-  { name: 'Çar', completed: 18, planned: 20, rate: 90 },
-  { name: 'Per', completed: 14, planned: 18, rate: 78 },
-  { name: 'Cum', completed: 16, planned: 16, rate: 100 },
+  { name: 'Pzt', completed: 12, planned: 15 },
+  { name: 'Sal', completed: 15, planned: 15 },
+  { name: 'Çar', completed: 18, planned: 20 },
+  { name: 'Per', completed: 14, planned: 18 },
+  { name: 'Cum', completed: 16, planned: 16 },
 ];
 
-const performanceData = [
-  { name: 'Raf Düzeni', value: 85 },
-  { name: 'Stok Kontrolü', value: 92 },
-  { name: 'Sipariş', value: 78 },
+const pieData = [
+  { name: 'Tamamlanan', value: 75 },
+  { name: 'Bekleyen', value: 25 },
 ];
 
 const COLORS = ['#FF6B00', '#E0E0E0'];
+
+const StatusContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '8px',
+  marginBottom: '16px',
+  flexWrap: 'nowrap',
+  overflowX: 'auto',
+  '&::-webkit-scrollbar': {
+    display: 'none'
+  },
+  scrollbarWidth: 'none',
+}));
+
+const StatusBox = styled(Box)(({ color }) => ({
+  padding: '8px 12px',
+  borderRadius: '8px',
+  backgroundColor: color,
+  color: '#fff',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  minWidth: 'fit-content',
+  '& .count': {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+  },
+  '& .label': {
+    fontSize: '0.75rem',
+    whiteSpace: 'nowrap',
+  },
+}));
 
 function Dashboard() {
   const [selectedOrg, setSelectedOrg] = useState('');
@@ -158,8 +235,16 @@ function Dashboard() {
   };
 
   return (
-    <Grid container spacing={3} sx={{ p: 0 }}>
-      <Grid item xs={12} md={9}>
+    <Grid 
+      container 
+      spacing={2} 
+      sx={{ 
+        p: 2,
+        height: '100%',
+        flexDirection: { xs: 'column-reverse', md: 'row' } // Mobilde sağ panel üstte olacak
+      }}
+    >
+      <Grid item xs={12} md={8}>
         <DashboardContainer>
           <MapSection>
             <MapContainer
@@ -203,7 +288,7 @@ function Dashboard() {
             <ChartCard>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <TrendingUpIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Haftalık Ziyaret Performansı</Typography>
+                <Typography variant="h6">Ziyaret İstatistikleri</Typography>
               </Box>
               <LineChart width={350} height={200} data={visitStats}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -219,11 +304,11 @@ function Dashboard() {
             <ChartCard>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <StorefrontIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Mağaza Dağılımı</Typography>
+                <Typography variant="h6">Günlük Hedef Durumu</Typography>
               </Box>
               <PieChart width={350} height={200}>
                 <Pie
-                  data={performanceData}
+                  data={pieData}
                   cx={170}
                   cy={100}
                   innerRadius={60}
@@ -232,128 +317,129 @@ function Dashboard() {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {performanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#FF6B00', '#2196F3', '#4CAF50'][index % 3]} />
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
                 <Legend />
               </PieChart>
             </ChartCard>
-
-            <ChartCard>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <AccessTimeIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Ziyaret Süreleri</Typography>
-              </Box>
-              <BarChart width={350} height={200} data={visitStats}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="rate" fill="#FF6B00" name="Verimlilik %" />
-              </BarChart>
-            </ChartCard>
           </ChartsSection>
         </DashboardContainer>
       </Grid>
 
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={4}>
         <SidePanel>
-          <StatsContainer>
-            <StatBox color="#4CAF50">
-              <Typography variant="subtitle2">Çevrimiçi</Typography>
-              <Typography variant="h4">5</Typography>
-            </StatBox>
-            <StatBox color="#2196F3">
-              <Typography variant="subtitle2">Ziyarette</Typography>
-              <Typography variant="h4">3</Typography>
-            </StatBox>
-            <StatBox color="#FF9800">
-              <Typography variant="subtitle2">Molada</Typography>
-              <Typography variant="h4">2</Typography>
-            </StatBox>
-            <StatBox color="#E91E63">
-              <Typography variant="subtitle2">İzinde</Typography>
-              <Typography variant="h4">1</Typography>
-            </StatBox>
-            <StatBox color="#9E9E9E">
-              <Typography variant="subtitle2">Offline</Typography>
-              <Typography variant="h4">4</Typography>
-            </StatBox>
-          </StatsContainer>
+          <StatusContainer>
+            <StatusBox color="#4CAF50">
+              <span className="count">5</span>
+              <span className="label">Çevrimiçi</span>
+            </StatusBox>
+            <StatusBox color="#2196F3">
+              <span className="count">3</span>
+              <span className="label">Ziyarette</span>
+            </StatusBox>
+            <StatusBox color="#FF9800">
+              <span className="count">2</span>
+              <span className="label">Molada</span>
+            </StatusBox>
+            <StatusBox color="#E91E63">
+              <span className="count">1</span>
+              <span className="label">İzinde</span>
+            </StatusBox>
+            <StatusBox color="#9E9E9E">
+              <span className="count">4</span>
+              <span className="label">Offline</span>
+            </StatusBox>
+          </StatusContainer>
 
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Organizasyon</InputLabel>
-              <Select
-                value={selectedOrg}
-                onChange={(e) => setSelectedOrg(e.target.value)}
-                startAdornment={<FilterListIcon sx={{ mr: 1 }} />}
-              >
-                <MenuItem value="org1">Organizasyon 1</MenuItem>
-                <MenuItem value="org2">Organizasyon 2</MenuItem>
-              </Select>
-            </FormControl>
+          <Box sx={{ mt: 3 }}>
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Organizasyon</InputLabel>
+                <Select
+                  value={selectedOrg}
+                  onChange={(e) => setSelectedOrg(e.target.value)}
+                  startAdornment={<FilterListIcon sx={{ mr: 1 }} />}
+                >
+                  <MenuItem value="org1">Organizasyon 1</MenuItem>
+                  <MenuItem value="org2">Organizasyon 2</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Merchandiser Ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+              }}
+            />
           </Box>
 
-          <TextField
-            fullWidth
-            size="small"
-            label="Merchandiser Ara"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-            }}
-          />
-
           <List sx={{ 
-            maxHeight: 400, 
-            overflow: 'auto', 
+            mt: 2,
+            maxHeight: { xs: '400px', md: 'calc(100vh - 380px)' }, // Mobilde sabit yükseklik
+            overflow: 'auto',
             bgcolor: 'background.paper',
             borderRadius: 1,
             '& .MuiListItem-root': {
               borderBottom: '1px solid rgba(0,0,0,0.08)',
-              '&:last-child': {
-                borderBottom: 'none',
-              },
+              '&:last-child': { borderBottom: 'none' },
             },
           }}>
             {filteredMerchandisers.map((m) => (
-              <ListItem key={m.id} sx={{ gap: 1 }}>
-                <ListItemAvatar>
-                  <Avatar src={m.avatar} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {m.name}
-                      <Chip
-                        size="small"
-                        label={m.status}
-                        sx={{
-                          bgcolor: getStatusColor(m.status),
-                          color: '#fff',
-                          height: 20,
-                        }}
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                      <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {m.currentStore}
+              <ListItem key={m.id} sx={{ p: 2 }}>
+                <Box sx={{ width: '100%' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Avatar src={m.avatar} sx={{ width: 40, height: 40, mr: 2 }} />
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                        {m.name}
                       </Typography>
-                      <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary', ml: 1 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {m.lastUpdate}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {m.currentStore}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Chip
+                      size="small"
+                      label={m.status}
+                      sx={{
+                        bgcolor: getStatusColor(m.status),
+                        color: '#fff',
+                        height: 24,
+                      }}
+                    />
+                  </Box>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2,
+                    mt: 1,
+                    p: 1,
+                    bgcolor: 'rgba(0,0,0,0.02)',
+                    borderRadius: 1,
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                      <Typography variant="caption">
+                        Son Ziyaret: 2 saat önce
                       </Typography>
                     </Box>
-                  }
-                />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="caption">
+                        Çevrimiçi: {m.lastUpdate}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
               </ListItem>
             ))}
           </List>
