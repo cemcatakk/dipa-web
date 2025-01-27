@@ -2,7 +2,23 @@ import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Paper, TextField, Select, MenuItem, FormControl, InputLabel, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, Grid, Chip } from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  BarChart, 
+  Bar, 
+  AreaChart, 
+  Area,
+  ResponsiveContainer 
+} from 'recharts';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -167,16 +183,16 @@ const dummyData = {
 };
 
 const visitStats = [
-  { name: 'Pzt', completed: 12, planned: 15 },
-  { name: 'Sal', completed: 15, planned: 15 },
-  { name: 'Çar', completed: 18, planned: 20 },
-  { name: 'Per', completed: 14, planned: 18 },
-  { name: 'Cum', completed: 16, planned: 16 },
+  { name: 'Pzt', tamamlanan: 15, planlanan: 18 },
+  { name: 'Sal', tamamlanan: 22, planlanan: 25 },
+  { name: 'Çar', tamamlanan: 28, planlanan: 30 },
+  { name: 'Per', tamamlanan: 19, planlanan: 22 },
+  { name: 'Cum', tamamlanan: 25, planlanan: 25 },
 ];
 
 const pieData = [
-  { name: 'Tamamlanan', value: 75 },
-  { name: 'Bekleyen', value: 25 },
+  { name: 'Tamamlanan', value: 75, color: '#FF6B00' },
+  { name: 'Bekleyen', value: 25, color: '#E0E0E0' },
 ];
 
 const COLORS = ['#FF6B00', '#E0E0E0'];
@@ -212,10 +228,44 @@ const StatusBox = styled(Box)(({ color }) => ({
   },
 }));
 
+const monthlyData = [
+  { name: 'Ocak', tamamlanan: 65, hedef: 80 },
+  { name: 'Şubat', tamamlanan: 75, hedef: 80 },
+  { name: 'Mart', tamamlanan: 85, hedef: 80 },
+  { name: 'Nisan', tamamlanan: 70, hedef: 80 },
+  { name: 'Mayıs', tamamlanan: 90, hedef: 80 },
+  { name: 'Haziran', tamamlanan: 95, hedef: 80 },
+];
+
+const performanceData = [
+  { name: 'Tamamlanan', value: 85, color: '#4CAF50' },
+  { name: 'İptal', value: 5, color: '#f44336' },
+  { name: 'Bekleyen', value: 10, color: '#FFC107' },
+];
+
+const dailyVisits = [
+  { date: '01/03', ziyaret: 24 },
+  { date: '02/03', ziyaret: 18 },
+  { date: '03/03', ziyaret: 27 },
+  { date: '04/03', ziyaret: 23 },
+  { date: '05/03', ziyaret: 29 },
+  { date: '06/03', ziyaret: 30 },
+  { date: '07/03', ziyaret: 26 },
+];
+
+const regionData = [
+  { bolge: 'Kadıköy', deger: 85 },
+  { bolge: 'Üsküdar', deger: 75 },
+  { bolge: 'Beşiktaş', deger: 90 },
+  { bolge: 'Şişli', deger: 65 },
+  { bolge: 'Maltepe', deger: 70 },
+];
+
 function Dashboard() {
   const [selectedOrg, setSelectedOrg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredMerchandisers, setFilteredMerchandisers] = useState(dummyData.merchandisers);
+  const [timeRange, setTimeRange] = useState('month');
 
   useEffect(() => {
     const filtered = dummyData.merchandisers.filter(m => 
@@ -235,217 +285,394 @@ function Dashboard() {
   };
 
   return (
-    <Grid 
-      container 
-      spacing={2} 
-      sx={{ 
-        p: 2,
-        height: '100%',
-        flexDirection: { xs: 'column-reverse', md: 'row' } // Mobilde sağ panel üstte olacak
-      }}
-    >
-      <Grid item xs={12} md={8}>
-        <DashboardContainer>
-          <MapSection>
-            <MapContainer
-              center={[41.0082, 28.9784]}
-              zoom={13}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {dummyData.merchandisers.map(m => (
-                <Marker 
-                  key={m.id}
-                  position={[m.lat, m.lng]}
-                  icon={merchandiserIcon}
-                >
-                  <Popup>
-                    <div>
-                      <strong>{m.name}</strong>
-                      <br />
-                      Mağaza: {m.currentStore}
-                      <br />
-                      Son Güncelleme: {m.lastUpdate}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-              {dummyData.stores.map(s => (
-                <Marker 
-                  key={s.id}
-                  position={[s.lat, s.lng]}
-                >
-                  <Popup>{s.name}</Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </MapSection>
-          
-          <ChartsSection>
-            <ChartCard>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TrendingUpIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Ziyaret İstatistikleri</Typography>
-              </Box>
-              <LineChart width={350} height={200} data={visitStats}>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h5" component="h1">
+          Dashboard
+        </Typography>
+        <FormControl size="small" sx={{ width: 150 }}>
+          <Select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+          >
+            <MenuItem value="week">Son 7 Gün</MenuItem>
+            <MenuItem value="month">Son 30 Gün</MenuItem>
+            <MenuItem value="year">Son 1 Yıl</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* Aylık Performans - Çizgi Grafik */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Aylık Performans
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="completed" stroke="#FF6B00" name="Tamamlanan" />
-                <Line type="monotone" dataKey="planned" stroke="#9E9E9E" name="Planlanan" />
+                <Line
+                  type="monotone"
+                  dataKey="tamamlanan"
+                  stroke="#2196F3"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="hedef"
+                  stroke="#FF9800"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                />
               </LineChart>
-            </ChartCard>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
 
-            <ChartCard>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <StorefrontIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6">Günlük Hedef Durumu</Typography>
-              </Box>
-              <PieChart width={350} height={200}>
+        {/* Performans Dağılımı - Pasta Grafik */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Performans Dağılımı
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
                 <Pie
-                  data={pieData}
-                  cx={170}
-                  cy={100}
-                  innerRadius={60}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  paddingAngle={5}
+                  data={performanceData}
                   dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
                 >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {performanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
                 <Legend />
               </PieChart>
-            </ChartCard>
-          </ChartsSection>
-        </DashboardContainer>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Günlük Ziyaretler - Alan Grafik */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Günlük Ziyaretler
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={dailyVisits}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Area
+                  type="monotone"
+                  dataKey="ziyaret"
+                  stroke="#4CAF50"
+                  fill="#4CAF50"
+                  fillOpacity={0.3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Bölge Performansı - Bar Grafik */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Bölge Performansı
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={regionData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bolge" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="deger" fill="#3F51B5">
+                  {regionData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.deger >= 80 ? '#4CAF50' : entry.deger >= 70 ? '#FFC107' : '#f44336'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
       </Grid>
 
-      <Grid item xs={12} md={4}>
-        <SidePanel>
-          <StatusContainer>
-            <StatusBox color="#4CAF50">
-              <span className="count">5</span>
-              <span className="label">Çevrimiçi</span>
-            </StatusBox>
-            <StatusBox color="#2196F3">
-              <span className="count">3</span>
-              <span className="label">Ziyarette</span>
-            </StatusBox>
-            <StatusBox color="#FF9800">
-              <span className="count">2</span>
-              <span className="label">Molada</span>
-            </StatusBox>
-            <StatusBox color="#E91E63">
-              <span className="count">1</span>
-              <span className="label">İzinde</span>
-            </StatusBox>
-            <StatusBox color="#9E9E9E">
-              <span className="count">4</span>
-              <span className="label">Offline</span>
-            </StatusBox>
-          </StatusContainer>
+      <Grid 
+        container 
+        spacing={2} 
+        sx={{ 
+          p: 2,
+          height: '100%',
+          flexDirection: { xs: 'column-reverse', md: 'row' } // Mobilde sağ panel üstte olacak
+        }}
+      >
+        <Grid item xs={12} md={8}>
+          <DashboardContainer>
+            <MapSection>
+              <MapContainer
+                center={[41.0082, 28.9784]}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {dummyData.merchandisers.map(m => (
+                  <Marker 
+                    key={m.id}
+                    position={[m.lat, m.lng]}
+                    icon={merchandiserIcon}
+                  >
+                    <Popup>
+                      <div>
+                        <strong>{m.name}</strong>
+                        <br />
+                        Mağaza: {m.currentStore}
+                        <br />
+                        Son Güncelleme: {m.lastUpdate}
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+                {dummyData.stores.map(s => (
+                  <Marker 
+                    key={s.id}
+                    position={[s.lat, s.lng]}
+                  >
+                    <Popup>{s.name}</Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </MapSection>
+            
+            <ChartsSection>
+              <ChartCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <TrendingUpIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">Haftalık Ziyaret Performansı</Typography>
+                </Box>
+                <LineChart width={350} height={200} data={visitStats}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                  <XAxis dataKey="name" stroke="#666" />
+                  <YAxis stroke="#666" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="tamamlanan" 
+                    stroke="#FF6B00" 
+                    strokeWidth={2}
+                    name="Tamamlanan"
+                    dot={{ stroke: '#FF6B00', strokeWidth: 2, r: 4, fill: '#fff' }}
+                    activeDot={{ r: 6, fill: '#FF6B00' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="planlanan" 
+                    stroke="#9E9E9E" 
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Planlanan"
+                    dot={{ stroke: '#9E9E9E', strokeWidth: 2, r: 4, fill: '#fff' }}
+                  />
+                </LineChart>
+              </ChartCard>
 
-          <Box sx={{ mt: 3 }}>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Organizasyon</InputLabel>
-                <Select
-                  value={selectedOrg}
-                  onChange={(e) => setSelectedOrg(e.target.value)}
-                  startAdornment={<FilterListIcon sx={{ mr: 1 }} />}
-                >
-                  <MenuItem value="org1">Organizasyon 1</MenuItem>
-                  <MenuItem value="org2">Organizasyon 2</MenuItem>
-                </Select>
-              </FormControl>
+              <ChartCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <StorefrontIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6">Günlük Hedef Durumu</Typography>
+                </Box>
+                <Box sx={{ position: 'relative', height: '200px' }}>
+                  <PieChart width={350} height={200}>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="middle" 
+                      align="right"
+                      layout="vertical"
+                      iconType="circle"
+                    />
+                  </PieChart>
+                  <Typography 
+                    variant="h4" 
+                    sx={{ 
+                      position: 'absolute', 
+                      left: '50%', 
+                      top: '50%', 
+                      transform: 'translate(-50%, -50%)',
+                      color: '#FF6B00',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    75%
+                  </Typography>
+                </Box>
+              </ChartCard>
+            </ChartsSection>
+          </DashboardContainer>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <SidePanel>
+            <StatusContainer>
+              <StatusBox color="#4CAF50">
+                <span className="count">5</span>
+                <span className="label">Çevrimiçi</span>
+              </StatusBox>
+              <StatusBox color="#2196F3">
+                <span className="count">3</span>
+                <span className="label">Ziyarette</span>
+              </StatusBox>
+              <StatusBox color="#FF9800">
+                <span className="count">2</span>
+                <span className="label">Molada</span>
+              </StatusBox>
+              <StatusBox color="#E91E63">
+                <span className="count">1</span>
+                <span className="label">İzinde</span>
+              </StatusBox>
+              <StatusBox color="#9E9E9E">
+                <span className="count">4</span>
+                <span className="label">Offline</span>
+              </StatusBox>
+            </StatusContainer>
+
+            <Box sx={{ mt: 0 }}>
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Organizasyon</InputLabel>
+                  <Select
+                    value={selectedOrg}
+                    onChange={(e) => setSelectedOrg(e.target.value)}
+                    startAdornment={<FilterListIcon sx={{ mr: 1 }} />}
+                  >
+                    <MenuItem value="org1">Organizasyon 1</MenuItem>
+                    <MenuItem value="org2">Organizasyon 2</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Merchandiser Ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                }}
+              />
             </Box>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder="Merchandiser Ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-              }}
-            />
-          </Box>
 
-          <List sx={{ 
-            mt: 2,
-            maxHeight: { xs: '400px', md: 'calc(100vh - 380px)' }, // Mobilde sabit yükseklik
-            overflow: 'auto',
-            bgcolor: 'background.paper',
-            borderRadius: 1,
-            '& .MuiListItem-root': {
-              borderBottom: '1px solid rgba(0,0,0,0.08)',
-              '&:last-child': { borderBottom: 'none' },
-            },
-          }}>
-            {filteredMerchandisers.map((m) => (
-              <ListItem key={m.id} sx={{ p: 2 }}>
-                <Box sx={{ width: '100%' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Avatar src={m.avatar} sx={{ width: 40, height: 40, mr: 2 }} />
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                        {m.name}
-                      </Typography>
+            <List sx={{ 
+              mt: 0,
+              maxHeight: { xs: '400px', md: 'calc(100vh - 380px)' }, // Mobilde sabit yükseklik
+              overflow: 'auto',
+              bgcolor: 'background.paper',
+              borderRadius: 1,
+              '& .MuiListItem-root': {
+                borderBottom: '1px solid rgba(0,0,0,0.08)',
+                '&:last-child': { borderBottom: 'none' },
+              },
+            }}>
+              {filteredMerchandisers.map((m) => (
+                <ListItem key={m.id} sx={{ p: 1 }}>
+                  <Box sx={{ width: '100%' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <Avatar src={m.avatar} sx={{ width: 40, height: 40, mr: 2 }} />
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                          {m.name}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {m.currentStore}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Chip
+                        size="small"
+                        label={m.status}
+                        sx={{
+                          bgcolor: getStatusColor(m.status),
+                          color: '#fff',
+                          height: 24,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 2,
+                      mt: 1,
+                      p: 1,
+                      bgcolor: 'rgba(0,0,0,0.02)',
+                      borderRadius: 1,
+                    }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {m.currentStore}
+                        <CheckCircleIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                        <Typography variant="caption">
+                          Son Ziyaret: 2 saat önce
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="caption">
+                          Çevrimiçi: {m.lastUpdate}
                         </Typography>
                       </Box>
                     </Box>
-                    <Chip
-                      size="small"
-                      label={m.status}
-                      sx={{
-                        bgcolor: getStatusColor(m.status),
-                        color: '#fff',
-                        height: 24,
-                      }}
-                    />
                   </Box>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 2,
-                    mt: 1,
-                    p: 1,
-                    bgcolor: 'rgba(0,0,0,0.02)',
-                    borderRadius: 1,
-                  }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <CheckCircleIcon sx={{ fontSize: 16, color: 'success.main' }} />
-                      <Typography variant="caption">
-                        Son Ziyaret: 2 saat önce
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                      <Typography variant="caption">
-                        Çevrimiçi: {m.lastUpdate}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </ListItem>
-            ))}
-          </List>
-        </SidePanel>
+                </ListItem>
+              ))}
+            </List>
+          </SidePanel>
+        </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 }
 

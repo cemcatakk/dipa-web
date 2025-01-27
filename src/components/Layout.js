@@ -21,6 +21,8 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate, Outlet } from 'react-router-dom';
+import DescriptionIcon from '@mui/icons-material/Description';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
 const drawerWidth = 240;
 
@@ -117,6 +119,16 @@ const menuItems = [
   { text: 'Rutlar', icon: <RouteIcon />, path: '/rutlar' },
   { text: 'Ayarlar', icon: <SettingsIcon />, path: '/ayarlar' },
   { text: 'Yönetim', icon: <AdminPanelSettingsIcon />, path: '/yonetim' },
+  {
+    icon: <DescriptionIcon />,
+    text: 'Formlar',
+    path: '/formlar'
+  },
+  {
+    icon: <StorefrontIcon />,
+    text: 'Müşteriler',
+    path: '/musteriler'
+  },
 ];
 
 function Layout() {
