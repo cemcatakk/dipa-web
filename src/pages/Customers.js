@@ -28,9 +28,9 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 const dummyData = [
   {
     id: 1,
-    company: 'ABC Market Zinciri',
-    name: 'ABC Market Kadıköy',
-    code: 'ABC001',
+    company: 'Gürsoy Fındık',
+    name: 'Gürsoy Fındık Kadıköy',
+    code: 'GSF001',
     group: 'Süpermarket',
     type: 'Şube',
     representative: 'Ahmet Yılmaz',
@@ -38,9 +38,9 @@ const dummyData = [
   },
   {
     id: 2,
-    company: 'ABC Market Zinciri',
-    name: 'ABC Market Merkez',
-    code: 'ABC000',
+    company: 'Johnsons Baby',
+    name: 'Johnsons Baby Merkez',
+    code: 'JBS000',
     group: 'Süpermarket',
     type: 'Merkez',
     representative: 'Mehmet Demir',
@@ -48,9 +48,9 @@ const dummyData = [
   },
   {
     id: 3,
-    company: 'XYZ Marketleri',
-    name: 'XYZ Market Üsküdar',
-    code: 'XYZ001',
+    company: 'Ülker',
+    name: 'Ülker Merkez',
+    code: 'ÜLK001',
     group: 'Zincir Market',
     type: 'Şube',
     representative: 'Ali Yıldız',

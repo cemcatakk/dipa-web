@@ -18,6 +18,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Link,
+  Chip,
+  Stack,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,11 +28,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import PersonIcon from '@mui/icons-material/Person';
 
 const dummyData = [
   { 
     id: 1, 
-    name: 'ABC Market Zinciri', 
+    name: 'Gürsoy Fındık', 
     totalStores: 125,
     activeMerchandisers: 45,
     region: 'İstanbul',
@@ -38,7 +43,7 @@ const dummyData = [
   },
   { 
     id: 2, 
-    name: 'XYZ Marketleri', 
+    name: 'Johnsons Baby', 
     totalStores: 85,
     activeMerchandisers: 30,
     region: 'Ankara',
@@ -47,7 +52,7 @@ const dummyData = [
   },
   { 
     id: 3, 
-    name: 'Mega Gross Market', 
+    name: 'Çokomel', 
     totalStores: 42,
     activeMerchandisers: 15,
     region: 'İzmir',
@@ -56,7 +61,7 @@ const dummyData = [
   },
   { 
     id: 4, 
-    name: 'Happy Center', 
+    name: 'Ülker', 
     totalStores: 93,
     activeMerchandisers: 38,
     region: 'İstanbul',
@@ -65,7 +70,7 @@ const dummyData = [
   },
   { 
     id: 5, 
-    name: 'Anadolu Markets', 
+    name: 'Tire Süt', 
     totalStores: 67,
     activeMerchandisers: 25,
     region: 'Bursa',
@@ -103,16 +108,14 @@ function Companies() {
       flex: 1,
       minWidth: 200,
       renderCell: (params) => (
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          cursor: 'pointer',
-          '&:hover': { color: 'primary.main' }
-        }}
-        onClick={() => navigate(`/firmalar/${params.row.id}`)}
+        <Link
+          component="button"
+          variant="body2"
+          onClick={() => navigate(`/firmalar/${params.row.id}`)}
+          sx={{ textDecoration: 'none' }}
         >
           {params.value}
-        </Box>
+        </Link>
       ),
     },
     { 
@@ -121,6 +124,12 @@ function Companies() {
       width: 150,
       align: 'center',
       headerAlign: 'center',
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <StorefrontIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+          {params.value}
+        </Box>
+      ),
     },
     { 
       field: 'activeMerchandisers', 
@@ -128,6 +137,12 @@ function Companies() {
       width: 180,
       align: 'center',
       headerAlign: 'center',
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+          {params.value}
+        </Box>
+      ),
     },
     { 
       field: 'region', 
@@ -135,6 +150,13 @@ function Companies() {
       width: 150,
       align: 'center',
       headerAlign: 'center',
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          size="small"
+          variant="outlined"
+        />
+      ),
     },
     { 
       field: 'status', 
@@ -143,17 +165,11 @@ function Companies() {
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => (
-        <Box
-          sx={{
-            backgroundColor: params.value === 'Aktif' ? '#4CAF50' : '#FF5722',
-            color: 'white',
-            padding: '4px 12px',
-            borderRadius: '12px',
-            fontSize: '0.75rem',
-          }}
-        >
-          {params.value}
-        </Box>
+        <Chip
+          label={params.value}
+          color={params.value === 'Aktif' ? 'success' : 'default'}
+          size="small"
+        />
       ),
     },
     { 
@@ -163,44 +179,32 @@ function Companies() {
       align: 'center',
       headerAlign: 'center',
       valueFormatter: (params) => {
-        return params.value;
+        return (params.value);
       },
     },
     {
       field: 'actions',
       headerName: 'İşlemler',
-      width: 150,
+      width: 120,
       align: 'center',
       headerAlign: 'center',
       sortable: false,
       renderCell: (params) => (
-        <Box>
-          <Tooltip title="Görüntüle">
-            <IconButton 
-              onClick={() => navigate(`/firmalar/${params.row.id}`)}
-              size="small"
-            >
-              <VisibilityIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Düzenle">
-            <IconButton 
-              onClick={() => navigate(`/firmalar/${params.row.id}/duzenle`)}
-              size="small"
-            >
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Sil">
-            <IconButton 
-              onClick={() => handleDelete(params.row.id)}
-              size="small"
-              color="error"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        <Stack direction="row" spacing={1}>
+          <IconButton 
+            onClick={() => navigate(`/firmalar/${params.row.id}/duzenle`)}
+            size="small"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton 
+            onClick={() => handleDelete(params.row.id)}
+            size="small"
+            color="error"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Stack>
       ),
     },
   ];
@@ -211,61 +215,49 @@ function Companies() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center' }}>
-        <Box>
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 600, color: '#1a1a1a' }}>
-            Firmalar
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Toplam {dummyData.length} firma listeleniyor
-          </Typography>
-        </Box>
+    <Box sx={{ p: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Typography variant="h5" component="h1">
+          Organizasyonlar
+        </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleOpenModal}
-          sx={{ 
-            color: '#fff',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
-            },
-          }}
+          sx={{ color: '#fff' }}
         >
-          Yeni Firma
+          Yeni Organizasyon
         </Button>
       </Box>
 
-      <Paper sx={{ 
-        p: 2, 
-        mb: 2,
-        borderRadius: 2,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Firma Ara..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ mb: 2 }}
-        />
+      <Paper sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <TextField
+            size="small"
+            placeholder="Organizasyon Ara..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ width: 300 }}
+          />
+        </Box>
 
         <DataGrid
           rows={dummyData}
           columns={columns}
-          pageSize={pageSize}
-          onPageSizeChange={setPageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          disableSelectionOnClick
-          autoHeight
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 25 },
+            },
+          }}
+          pageSizeOptions={[25, 50, 100]}
+          disableRowSelectionOnClick
           sx={{
             border: 'none',
             '& .MuiDataGrid-cell:focus': {
@@ -277,6 +269,12 @@ function Companies() {
             },
             '& .MuiDataGrid-row:hover': {
               backgroundColor: '#f8f8f8',
+            },
+            '& .MuiDataGrid-cell': {
+              borderBottom: '1px solid #f0f0f0',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              borderTop: '1px solid #f0f0f0',
             },
           }}
         />
@@ -293,14 +291,14 @@ function Companies() {
           borderBottom: '1px solid #eee',
           fontWeight: 600
         }}>
-          Yeni Firma Ekle
+          Yeni Organizasyon Ekle
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Firma Adı"
+                label="Organizasyon Adı"
                 value={newCompany.name}
                 onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
               />

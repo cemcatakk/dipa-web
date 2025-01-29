@@ -13,6 +13,15 @@ import RouteDetail from './pages/RouteDetail';
 import Forms from './pages/Forms';
 import Customers from './pages/Customers';
 import AllRoutes from './pages/AllRoutes';
+import Profile from './pages/Profile';
+import Markets from './pages/Markets';
+import Management from './pages/Management';
+import Representatives from './pages/Representatives';
+import RepresentativeEdit from './pages/RepresentativeEdit';
+import Messages from './pages/Messages';
+import Login from './pages/Login';
+import RouteDefinition from './pages/RouteDefinition';
+
 
 const theme = createTheme({
   typography: {
@@ -34,6 +43,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="firmalar" element={<Companies />} />
@@ -41,16 +51,20 @@ function App() {
             <Route path="firmalar/:id/duzenle" element={<div>Firma Düzenle</div>} />
             <Route path="firmalar/yeni" element={<div>Yeni Firma</div>} />
             <Route path="merchandiserlar" element={<Merchandisers />} />
-            <Route path="marketler" element={<div>Marketler Sayfası</div>} />
             <Route path="rutlar" element={<AllRoutes />} />
             <Route path="rutlar/:id" element={<RouteDetail />} />
-            <Route path="ayarlar" element={<div>Ayarlar Sayfası</div>} />
-            <Route path="yonetim" element={<div>Yönetim Sayfası</div>} />
             <Route path="formlar" element={<Forms />} />
             <Route path="musteriler" element={<Customers />} />
             <Route path="musteriler/:id" element={<div>Müşteri Detay</div>} />
             <Route path="musteriler/yeni" element={<div>Yeni Müşteri</div>} />
             <Route path="musteriler/tanimlar" element={<div>Müşteri Tanımları</div>} />
+            <Route path="marketler" element={<Markets />} />
+            <Route path="yonetim" element={<Management />} />
+            <Route path="profil" element={<Profile />} />
+            <Route path="temsilciler" element={<Representatives />} />
+            <Route path="temsilciler/duzenle/:id" element={<RepresentativeEdit />} />
+            <Route path="mesajlar" element={<Messages />} />
+            <Route path="rutlar/tanimla" element={<RouteDefinition />} />
           </Route>
         </Routes>
       </Router>

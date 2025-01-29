@@ -18,6 +18,14 @@ import {
   IconButton,
   Tooltip,
   Avatar,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -32,6 +40,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import 'dayjs/locale/tr';
 
@@ -143,6 +152,9 @@ function AllRoutes() {
   });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [openAssignModal, setOpenAssignModal] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedMerchandiser, setSelectedMerchandiser] = useState(null);
 
   const columns = [
     {
@@ -367,6 +379,20 @@ function AllRoutes() {
     </Grid>
   );
 
+  // Henüz atanmamış rutlar
+  const unassignedRoutes = [
+    { id: 1, name: 'Kadıköy-1 Rotası', stores: 8, region: 'İstanbul' },
+    { id: 2, name: 'Beşiktaş-2 Rotası', stores: 6, region: 'İstanbul' },
+    // ... daha fazla rut
+  ];
+
+  // Bugün rutu olmayan merchandiserlar
+  const availableMerchandisers = [
+    { id: 1, name: 'Ahmet Yılmaz', region: 'İstanbul', avatar: 'url' },
+    { id: 2, name: 'Ayşe Kaya', region: 'İstanbul', avatar: 'url' },
+    // ... daha fazla merchandiser
+  ];
+
   return (
     <Box sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -389,10 +415,16 @@ function AllRoutes() {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/rutlar/yeni')}
-            sx={{ color: '#fff' }}
+            onClick={() => setOpenAssignModal(true)}
           >
-            Yeni Rut
+            Yeni Rut Ata
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/rutlar/tanimla')}
+          >
+            Rut Tanımla
           </Button>
         </Stack>
       </Box>
@@ -496,6 +528,122 @@ function AllRoutes() {
           }}
         />
       </Paper>
+
+      <Dialog
+        open={openAssignModal}
+        onClose={() => setOpenAssignModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Yeni Rut Ata
+          <IconButton
+            onClick={() => setOpenAssignModal(false)}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            {/* Sol Panel - Rutlar */}
+            <Grid item xs={6}>
+              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                Atanabilir Rutlar
+              </Typography>
+              <Paper sx={{ height: 400, overflow: 'auto' }}>
+                <List>
+                  {unassignedRoutes.map((route) => (
+                    <ListItem
+                      key={route.id}
+                      button
+                      selected={selectedRoute?.id === route.id}
+                      onClick={() => setSelectedRoute(route)}
+                      sx={{
+                        '&.Mui-selected': {
+                          backgroundColor: 'primary.light',
+                          '&:hover': {
+                            backgroundColor: 'primary.light',
+                          },
+                        },
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                        },
+                      }}
+                    >
+                      <ListItemText
+                        primary={route.name}
+                        secondary={`${route.stores} Market • ${route.region}`}
+                        primaryTypographyProps={{
+                          color: selectedRoute?.id === route.id ? 'primary.main' : 'inherit',
+                          fontWeight: selectedRoute?.id === route.id ? 500 : 400,
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+
+            {/* Sağ Panel - Merchandiserlar */}
+            <Grid item xs={6}>
+              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                Uygun Merchandiserlar
+              </Typography>
+              <Paper sx={{ height: 400, overflow: 'auto' }}>
+                <List>
+                  {availableMerchandisers.map((merchandiser) => (
+                    <ListItem
+                      key={merchandiser.id}
+                      button
+                      selected={selectedMerchandiser?.id === merchandiser.id}
+                      onClick={() => setSelectedMerchandiser(merchandiser)}
+                      sx={{
+                        '&.Mui-selected': {
+                          backgroundColor: 'primary.light',
+                          '&:hover': {
+                            backgroundColor: 'primary.light',
+                          },
+                        },
+                        '&:hover': {
+                          backgroundColor: 'action.hover',
+                        },
+                      }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar src={merchandiser.avatar} />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={merchandiser.name}
+                        secondary={merchandiser.region}
+                        primaryTypographyProps={{
+                          color: selectedMerchandiser?.id === merchandiser.id ? 'primary.main' : 'inherit',
+                          fontWeight: selectedMerchandiser?.id === merchandiser.id ? 500 : 400,
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAssignModal(false)}>İptal</Button>
+          <Button
+            variant="contained"
+            disabled={!selectedRoute || !selectedMerchandiser}
+            onClick={() => {
+              // Rut atama işlemi
+              console.log('Atanan Rut:', selectedRoute);
+              console.log('Atanan Merchandiser:', selectedMerchandiser);
+              setOpenAssignModal(false);
+            }}
+          >
+            Rut Ata
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

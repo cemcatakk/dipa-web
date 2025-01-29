@@ -15,12 +15,16 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Button,
+  Stack,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import RouteIcon from '@mui/icons-material/Route';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import ChatIcon from '@mui/icons-material/Chat';
+import EditIcon from '@mui/icons-material/Edit';
 
 const dummyData = [
   {
@@ -94,6 +98,32 @@ function Merchandisers() {
     const matchesRegion = regionFilter === 'all' || m.region === regionFilter;
     return matchesSearch && matchesStatus && matchesRegion;
   });
+
+  const columns = [
+    {
+      field: 'actions',
+      headerName: 'İşlemler',
+      width: 200,
+      renderCell: (params) => (
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ChatIcon />}
+            onClick={() => navigate('/mesajlar')}
+          >
+            Mesaj Gönder
+          </Button>
+          <IconButton 
+            size="small"
+            //onClick={() => handleEdit(params.row.id)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      ),
+    },
+  ];
 
   return (
     <Box sx={{ p: 3 }}>
@@ -194,6 +224,9 @@ function Merchandisers() {
                       }}
                     />
                   </Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Son aktif: {merchandiser.lastActive}
+                  </Typography>
                 </Box>
 
                 <Box sx={{ mb: 2 }}>
@@ -218,29 +251,6 @@ function Merchandisers() {
                       {merchandiser.activeRoute.completedStores} / {merchandiser.activeRoute.totalStores} Market Tamamlandı
                     </Typography>
                   </Paper>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Tooltip title="Ara">
-                    <IconButton 
-                      size="small"
-                      onClick={() => window.open(`tel:${merchandiser.phone}`)}
-                    >
-                      <PhoneIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="E-posta Gönder">
-                    <IconButton 
-                      size="small"
-                      onClick={() => window.open(`mailto:${merchandiser.email}`)}
-                    >
-                      <EmailIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Box sx={{ flexGrow: 1 }} />
-                  <Typography variant="caption" color="text.secondary">
-                    Son aktif: {merchandiser.lastActive}
-                  </Typography>
                 </Box>
               </Paper>
             </Grid>

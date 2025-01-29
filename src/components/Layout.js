@@ -20,9 +20,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import DescriptionIcon from '@mui/icons-material/Description';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import ChatIcon from '@mui/icons-material/Chat';
 
 const drawerWidth = 240;
 
@@ -113,30 +114,40 @@ const Main = styled('main', {
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Firmalar', icon: <BusinessIcon />, path: '/firmalar' },
-  { text: 'Merchandiserlar', icon: <PeopleIcon />, path: '/merchandiserlar' },
-  { text: 'Marketler', icon: <StoreIcon />, path: '/marketler' },
   { text: 'Rutlar', icon: <RouteIcon />, path: '/rutlar' },
-  { text: 'Ayarlar', icon: <SettingsIcon />, path: '/ayarlar' },
-  { text: 'Yönetim', icon: <AdminPanelSettingsIcon />, path: '/yonetim' },
+  { text: 'Merchandiserlar', icon: <PeopleIcon />, path: '/merchandiserlar' },
   {
-    icon: <DescriptionIcon />,
-    text: 'Formlar',
-    path: '/formlar'
+    icon: <ChatIcon />,
+    text: 'Mesajlar',
+    path: '/mesajlar'
   },
+  { text: 'Marketler', icon: <StoreIcon />, path: '/marketler' },
+  { text: 'Temsilciler', icon: <PeopleIcon />, path: '/temsilciler' },
+  { text: 'Organizasyonlar', icon: <BusinessIcon />, path: '/firmalar' },
   {
     icon: <StorefrontIcon />,
     text: 'Müşteriler',
     path: '/musteriler'
   },
+  {
+    icon: <DescriptionIcon />,
+    text: 'Formlar',
+    path: '/formlar'
+  },
+  { text: 'Yönetim', icon: <AdminPanelSettingsIcon />, path: '/yonetim' },
 ];
 
 function Layout() {
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDrawerToggle = () => {
     setOpen(!open);
+  };
+
+  const handleLogout = () => {
+    navigate('/login');
   };
 
   return (
@@ -156,10 +167,26 @@ function Layout() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             DIPA Yönetim Paneli
           </Typography>
-          <IconButton color="inherit">
-            <Avatar sx={{ bgcolor: 'secondary.main' }}>JS</Avatar>
+          <IconButton 
+            color="inherit"
+            onClick={() => navigate('/profil')}
+            sx={{ 
+              '&:hover': { 
+                bgcolor: 'rgba(0, 0, 0, 0.04)' 
+              } 
+            }}
+          >
+            <Avatar sx={{ bgcolor: 'secondary.main' }}>NS</Avatar>
           </IconButton>
-          <IconButton color="inherit">
+          <IconButton 
+            color="inherit"
+            onClick={handleLogout}
+            sx={{ 
+              '&:hover': { 
+                bgcolor: 'rgba(0, 0, 0, 0.04)' 
+              } 
+            }}
+          >
             <LogoutIcon />
           </IconButton>
         </Toolbar>
@@ -177,8 +204,11 @@ function Layout() {
                 justifyContent: open ? 'initial' : 'center',
                 px: 2.5,
                 cursor: 'pointer',
+                backgroundColor: location.pathname === item.path ? 'rgba(255, 107, 0, 0.08)' : 'transparent',
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  backgroundColor: location.pathname === item.path 
+                    ? 'rgba(255, 107, 0, 0.12)' 
+                    : 'rgba(0, 0, 0, 0.04)',
                 },
               }}
             >
@@ -187,13 +217,17 @@ function Layout() {
                   minWidth: 0,
                   mr: open ? 3 : 'auto',
                   justifyContent: 'center',
+                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
                 }}
               >
                 {item.icon}
               </ListItemIcon>
               <ListItemText 
                 primary={item.text} 
-                sx={{ opacity: open ? 1 : 0 }}
+                sx={{ 
+                  opacity: open ? 1 : 0,
+                  color: location.pathname === item.path ? 'primary.main' : 'inherit',
+                }}
               />
             </ListItem>
           ))}
